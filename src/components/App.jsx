@@ -11,6 +11,7 @@ import Login from "./Login";
 import MyProfile from "./MyProfile";
 import Register from "./Register";
 import ProtectedRoute from "./ProtectedRoute";
+import AppContext from "../contexts/AppContext";
 import "./styles/App.css";
 import * as auth from "../utils/auth";
 import { getToken, setToken } from "../utils/token";
@@ -92,61 +93,65 @@ function App() {
   }, []);
 
   return (
-    <Routes>
-      <Route
-        path="/ducks"
-        element={
-          <ProtectedRoute isLoggedIn={isLoggedIn}>
-            <Ducks setIsLoggedIn={setIsLoggedIn} />{" "}
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/my-profile"
-        element={
-          <ProtectedRoute isLoggedIn={isLoggedIn}>
-            <MyProfile userData={userData} setIsLoggedIn={setIsLoggedIn} />{" "}
-          </ProtectedRoute>
-        }
-      />
-      {/* Wrap our /register route in a ProtectedRoute. Make sure to
+    // We are passing an object containing isLoggedIn as the value
+    // of the context provider.
+    <AppContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
+      <Routes>
+        <Route
+          path="/ducks"
+          element={
+            <ProtectedRoute>
+              <Ducks />{" "}
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/my-profile"
+          element={
+            <ProtectedRoute>
+              <MyProfile userData={userData} />{" "}
+            </ProtectedRoute>
+          }
+        />
+        {/* Wrap our /register route in a ProtectedRoute. Make sure to
       specify the anoymous prop, to redirect logged-in users 
       to "/". */}
-      <Route
-        path="/login"
-        element={
-          <ProtectedRoute isLoggedIn={isLoggedIn} anonymous>
-            <div className="loginContainer">
-              <Login handleLogin={handleLogin} />
-            </div>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="*"
-        element={
-          isLoggedIn ? (
-            <Navigate to={"/ducks"} replace />
-          ) : (
-            //The "replace" keeps the browser history clean by replacing the current entry in the history stack instead of adding a new one
-            <Navigate to={"/login"} replace />
-          )
-        }
-      />
-      {/* Wrap our /register route in a ProtectedRoute. Make sure to
+        <Route
+          path="/login"
+          element={
+            <ProtectedRoute isLoggedIn={isLoggedIn} anonymous>
+              <div className="loginContainer">
+                <Login handleLogin={handleLogin} />
+              </div>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            isLoggedIn ? (
+              <Navigate to={"/ducks"} replace />
+            ) : (
+              //The "replace" keeps the browser history clean by replacing the current entry in the history stack instead of adding a new one
+              <Navigate to={"/login"} replace />
+            )
+          }
+        />
+        {/* Wrap our /register route in a ProtectedRoute. Make sure to
       specify the anoymous prop, to redirect logged-in users 
       to "/". */}
-      <Route
-        path="/register"
-        element={
-          <ProtectedRoute isLoggedIn={isLoggedIn} anonymous>
-            <div className="registerContainer">
-              <Register handleRegistration={handleRegistration} />
-            </div>
-          </ProtectedRoute>
-        }
-      />
-    </Routes>
+        <Route
+          path="/register"
+          element={
+            <ProtectedRoute isLoggedIn={isLoggedIn} anonymous>
+              <div className="registerContainer">
+                <Register handleRegistration={handleRegistration} />
+              </div>
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </AppContext.Provider>
   );
 }
 
